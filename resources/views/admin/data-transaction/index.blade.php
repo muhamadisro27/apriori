@@ -20,7 +20,11 @@
         <div class="container-lg">
             <div class="car"></div>
             <div class="mb-4 card">
-                <div class="card-header"><strong>Data Transaction</strong></div>
+                <div class="flex-row card-header d-flex justify-content-between">
+                    <strong>Data</strong>
+                    <a href="javascript:void(0)" id="import-data" class="btn btn-sm btn-primary"><i
+                        class='cil-note-add'></i> Import Data</a>
+                </div>
                 <div class="card-body">
                     <div class="example">
                         <div class="tab-content rounded-bottom">
