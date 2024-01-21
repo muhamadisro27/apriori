@@ -5293,7 +5293,7 @@ html:not([dir=rtl]) .navbar-nav {
   --cui-card-cap-color: unset;
   --cui-card-height: ;
   --cui-card-color: unset;
-  --cui-card-bg: #EDDE58;
+  --cui-card-bg: #FFF;
   --cui-card-img-overlay-padding: 1rem;
   --cui-card-group-margin: 0.75rem;
   position: relative;

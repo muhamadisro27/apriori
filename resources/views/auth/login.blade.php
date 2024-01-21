@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-4">
             <div class="card-group d-block d-md-flex row justify-content-center">
-                <div class="p-4 mb-0 card col-md-7">
+                <div style="background-color: #EDDE58 !important;" class="p-4 mb-0 card col-md-7">
                     <div class="card-body text-center">
                         <h1 class="text-center">{{ config('app.name', 'Laravel') }} </h1>
                         <img class="my-5" src="{{ asset('images/default/91773395-e778-4294-a29f-3ed9c4d54ad2 1.png') }}" alt="Logo" width="100" height="100">
