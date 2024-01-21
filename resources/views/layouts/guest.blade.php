@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    <div class="bg-light min-vh-100 d-flex flex-row align-items-center dark:bg-transparent">
+    <div style="background-image: url('{{ asset('images/default/peralatan-dapur-murah 1.png') }}'); background-repeat:no-repeat; background-size:cover;" class="min-vh-100 d-flex flex-row align-items-center dark:bg-transparent">
         <div class="container">
            {{ $slot }}
         </div>

@@ -1,11 +1,5 @@
 <div class="sidebar sidebar-light sidebar-fixed" id="sidebar">
     <div class="sidebar-brand d-none d-md-flex">
-        {{-- <svg class="sidebar-brand-full ms-2" width="118" height="46" alt="CoreUI Logo">
-            <use xlink:href="assets/brand/coreui.svg#full"></use>
-        </svg>
-        <svg class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
-            <use xlink:href="assets/brand/coreui.svg#signet"></use>
-        </svg> --}}
         <img src="{{ asset('images/default/91773395-e778-4294-a29f-3ed9c4d54ad2 1.png') }}" class="sidebar-brand-full ms-2" width="50" height="50" alt="logo">
         <img src="{{ asset('images/default/91773395-e778-4294-a29f-3ed9c4d54ad2 1.png') }}" class="sidebar-brand-narrow" width="50" height="50" alt="logo">
         <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
@@ -17,11 +11,11 @@
         </li>
         <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.apriori-process.') ? 'active' : '' }}" href="{{ route('admin.apriori-process.') }}">
                 <i class="nav-icon cil-calculator">
-                </i> Apriori Process</a>
+                </i> Proses Apriori</a>
         </li>
         <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.data-transaction.') ? 'active' : '' }}" href="{{ route('admin.data-transaction.') }}">
                 <i class="nav-icon cil-bar-chart">
-                </i> Data Transaction</a>
+                </i> Data Transaksi</a>
         </li>
     </ul>
 </div>

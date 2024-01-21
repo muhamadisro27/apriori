@@ -9,4 +9,7 @@
     .table {
         width: 100% !important;
     }
+    div.dataTables_processing>div:last-child>div {
+        background:#b3a423;
+    }
 </style>

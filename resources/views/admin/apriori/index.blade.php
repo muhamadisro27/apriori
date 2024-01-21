@@ -1,3 +1,5 @@
+@section('title', 'Proses Apriori')
+
 <x-app-layout>
 
     <x-slot name="breadcrumb">

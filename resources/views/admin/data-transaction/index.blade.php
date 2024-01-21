@@ -1,4 +1,4 @@
-@section('title', 'Data Transaction')
+@section('title', 'Data Transaksi')
 
 <x-app-layout>
 
