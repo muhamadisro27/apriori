@@ -6,6 +6,8 @@
         <svg class="sidebar-brand-narrow" width="46" height="46" alt="CoreUI Logo">
             <use xlink:href="assets/brand/coreui.svg#signet"></use>
         </svg> --}}
+        <img src="{{ asset('images/default/91773395-e778-4294-a29f-3ed9c4d54ad2 1.png') }}" class="sidebar-brand-full ms-2" width="50" height="50" alt="logo">
+        <img src="{{ asset('images/default/91773395-e778-4294-a29f-3ed9c4d54ad2 1.png') }}" class="sidebar-brand-narrow" width="50" height="50" alt="logo">
         <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
     </div>
     <ul class="sidebar-nav" data-coreui="navigation" data-simplebar="">

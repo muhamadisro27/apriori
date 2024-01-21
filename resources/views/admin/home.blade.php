@@ -1,3 +1,5 @@
+@section('title', 'Home')
+
 <x-app-layout>
 
     <x-slot name="breadcrumb">

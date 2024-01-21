@@ -14,11 +14,18 @@ return new class extends Migration
         Schema::create('data_transactions', function (Blueprint $table) {
             $table->id();
             $table->date('date');
+            $table->string('transaction_code')->unique();
+            $table->timestamps();
+        });
+
+        Schema::create('detail_transactions', function (Blueprint $table) {
+            $table->id();
             $table->string('transaction_code');
             $table->string('item_code');
             $table->string('item_name');
             $table->unsignedInteger('quantity');
             $table->timestamps();
+            $table->foreign('transaction_code')->references('transaction_code')->on('data_transactions')->onDelete('cascade');
         });
     }
 
@@ -27,6 +34,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data_transactions');
+        Schema::dropIfExist('data_transactions');
+        Schema::dropIfExists('detail_transactions');
     }
 };

@@ -28,6 +28,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     Route::prefix('data-transaction')->controller(App\Http\Controllers\DataTransactionController::class)->name('data-transaction.')->group(function () {
         Route::get('/', 'index');
+        Route::get('get-data', 'get_data')->name('get_data');
     });
 });
 

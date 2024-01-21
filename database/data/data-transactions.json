@@ -1,0 +1,51 @@
+[
+    {
+        "date" : "2023-01-02",
+        "transaction_code" : "Ca01",
+        "item_code" : "Gs002",
+        "item_name" : "Sapu",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-03",
+        "transaction_code" : "Ca02",
+        "item_code" : "Gs001",
+        "item_name" : "Pelan",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-04",
+        "transaction_code" : "Ca03",
+        "item_code" : "Gs003",
+        "item_name" : "Sikat",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-05",
+        "transaction_code" : "Ca04",
+        "item_code" : "Gs004",
+        "item_name" : "Piring",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-06",
+        "transaction_code" : "Ca05",
+        "item_code" : "Gs005",
+        "item_name" : "Mangkuk",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-06",
+        "transaction_code" : "Ca05",
+        "item_code" : "Gs006",
+        "item_name" : "Gelas",
+        "quantity" : 1
+    },
+    {
+        "date" : "2023-01-06",
+        "transaction_code" : "Ca06",
+        "item_code" : "Gs008",
+        "item_name" : "Rak Sepatu",
+        "quantity" : 1
+    }
+]
