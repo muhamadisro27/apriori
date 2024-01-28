@@ -25,10 +25,13 @@ class DataTransaction extends Model
 
     public static function filter()
     {
+        $start = htmlspecialchars(request('date_start')) ?? now()->firstOfMonth()->format('Y-m-d');
+        $end = htmlspecialchars(request('date_end')) ?? now()->format('Y-m-d');
+
         $transactions = DataTransaction::query()->with('detail_transaction', function($q) {
             $q->select('id', 'data_transaction_id' ,'item_name', 'quantity');
         })
-        ->select('id', 'date', 'transaction_code')->orderBy('date', 'desc');
+        ->select('id', 'date', 'transaction_code', 'created_at')->where('created_at', '>=', $start)->where('created_at', '<=', $end)->orderBy('date', 'desc');
 
         return $transactions;
     }

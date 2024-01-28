@@ -28,7 +28,40 @@
                     </div>
                 @endif
             @endif
-            <div class="car"></div>
+
+            <x-filter-wrapper>
+                <form id="submit-filter">
+                    <input type="hidden" id="count" value="2">
+                    <div class="row">
+                        <div class="mb-3 col-sm-6 col-md-6 col-lg-3">
+                            <label for="date-start">Date Start :</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class='cil-calendar'></i></span>
+                                <input type="text" class="form-control" name="date-start" value="{{ $date_start }}"
+                                    id="date-start">
+                            </div>
+                        </div>
+                        <div class="mb-3 col-sm-6 col-md-6 col-lg-3">
+                            <label for="date-end">Date End :</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class='cil-calendar'></i></span>
+                                <input type="text" class="form-control" name="date-end" value="{{ $date_end }}"
+                                    id="date-end">
+                            </div>
+                        </div>
+                    </div>
+
+                    <x-slot name="footer_button">
+                        <div class="mt-3 row">
+                            <div class="flex-row-reverse gap-1 col-md-12 d-flex">
+                                <button type="submit" class="btn btn-primary">Apply</button>
+                                <a id="reset-filter" href="javascript:void(0)" class="btn btn-secondary">Reset</a>
+                            </div>
+                        </div>
+                    </x-slot>
+                </form>
+            </x-filter-wrapper>
+
             <div class="mb-4 card">
                 <div class="flex-row card-header d-flex justify-content-between">
                     <strong>Data</strong>
@@ -45,10 +78,11 @@
                                 <table id="datatable" class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Tanggal</th>
+                                            <th scope="col">Tanggal Transaksi</th>
                                             <th scope="col">Kode Transaksi</th>
                                             <th scope="col">Nama Barang</th>
-                                            <th scope="col">Qty</th>
+                                            <th scope="col">Jumlah</th>
+                                            <th scope="col">Tanggal Dibuat</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -97,8 +131,10 @@
 
     $(document).ready(function() {
 
+        datePicker($('#date-start'), $('#date-end'));
+
         table = $('#datatable').DataTable({
-            dom: 'Blfrtip',
+            dom: 'Bfrtip',
             buttons: [{
                     extend: 'pageLength'
                 },
@@ -134,13 +170,15 @@
                 type: 'get',
                 data: function(data) {
                     const urlParams = new URLSearchParams(window.location.search);
+                    data.date_start = urlParams.get('date-start') ?? null;
+                    data.date_end = urlParams.get('date-end') ?? null;
                 }
             },
             order: [
-                [0, 'desc']
+                [0, 'desc'],
             ],
             columnDefs: [{
-                    targets: [0],
+                    targets: [0, 1, 3, 4],
                     className: 'dt-center'
                 },
                 {
@@ -149,7 +187,7 @@
                 }
             ],
             columns: [{
-                    data: "Date",
+                    data: "DT",
                     name: 'date',
                     searchable: false
                 },
@@ -159,11 +197,17 @@
                 },
                 {
                     data: "IN",
-                    name: "items"
+                    name: "detail_transaction.item_name"
                 },
                 {
                     data: "QTY",
-                    name: "total_quantity"
+                    name: "detail_transaction.quantity",
+                    searchable : false
+                },
+                {
+                    data: "Date Created",
+                    name: 'created_at',
+                    searchable: false
                 },
             ]
         })

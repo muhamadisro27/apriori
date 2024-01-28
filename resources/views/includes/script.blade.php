@@ -4,3 +4,7 @@
 <script src="{{ asset('vendors/js/datepicker-bootstrap4.min.js') }}"></script>
 <script src="{{ asset('vendors/js/toastr.min.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
+<script>
+    var datepicker_startDate = '{{ date('Y-m-01') }}';
+    var datepicker_endDate = '{{ date('Y-m-d') }}';
+</script>

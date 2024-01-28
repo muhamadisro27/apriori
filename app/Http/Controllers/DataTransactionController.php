@@ -18,7 +18,10 @@ class DataTransactionController extends Controller
     //
     public function index()
     {
-        return view('admin.data-transaction.index');
+        $date_start = now()->firstOfMonth()->format('Y-m-d');
+        $date_end = now()->format('Y-m-d');
+
+        return view('admin.data-transaction.index', compact('date_start', 'date_end'));
     }
 
     public function get_data()
@@ -29,8 +32,12 @@ class DataTransactionController extends Controller
             $datatable =  DataTables::eloquent($model);
 
             $datatable
-                ->addColumn('Date', function ($model) {
-                    $d = Carbon::parse($model->date)->translatedFormat('Y-m-d');
+                ->addColumn('Date Created', function ($model) {
+                    $d = Carbon::parse($model->created_at)->translatedFormat('d-m-Y');
+                    return $d;
+                })
+                ->addColumn('DT', function ($model) {
+                    $d = Carbon::parse($model->date)->translatedFormat('d-m-Y');
                     return $d;
                 })
                 ->addColumn('TC', function ($model) {
