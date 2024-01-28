@@ -25,18 +25,6 @@ class DataTransaction extends Model
 
     public static function filter()
     {
-        // $transactions = DB::table('data_transactions')
-        //     ->join(
-        //         'detail_transactions',
-        //         'detail_transactions.transaction_code',
-        //         '=',
-        //         'data_transactions.transaction_code'
-        //     )->selectRaw('data_transactions.date,
-        //                   data_transactions.transaction_code,
-        //                   if(count(detail_transactions.item_name) > 1, concat(detail_transactions.item_name, ",") , detail_transactions.item_name) as items,
-        //                   count(detail_transactions.quantity) as total_quantity')
-        //     ->groupBy('detail_transactions.transaction_code');
-
         $transactions = DataTransaction::query()->with('detail_transaction', function($q) {
             $q->select('id', 'data_transaction_id' ,'item_name', 'quantity');
         })
