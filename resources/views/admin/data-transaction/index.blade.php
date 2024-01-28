@@ -15,15 +15,28 @@
         </nav>
     </x-slot>
 
-
     <div class="px-3 body flex-grow-1">
         <div class="container-lg">
+            @if (session()->has('response'))
+                @if (session()->get('response')['status'] == 200)
+                    <div class="alert alert-success" role="alert">
+                        {{ session()->get('response')['message'] }}
+                    </div>
+                @else
+                    <div class="alert alert-danger" role="alert">
+                        {{ session()->get('response')['message'] }}
+                    </div>
+                @endif
+            @endif
             <div class="car"></div>
             <div class="mb-4 card">
                 <div class="flex-row card-header d-flex justify-content-between">
                     <strong>Data</strong>
-                    <a href="javascript:void(0)" id="import-data" class="btn btn-sm btn-primary"><i
-                        class='cil-note-add'></i> Import Data</a>
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-coreui-toggle="modal"
+                        data-coreui-target="#modal">
+                        <i class='cil-note-add'></i> Import Data
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="example">
@@ -46,6 +59,33 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{ route('admin.data-transaction.import') }}" method="post" enctype="multipart/form-data">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Import Data Transaction</h5>
+                        <button type="button" class="btn-close" data-coreui-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ csrf_field() }}
+
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Pilih file excel</label>
+                            <input class="form-control" type="file" id="file" name="file" accept=".xlsx">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 

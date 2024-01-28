@@ -10,7 +10,7 @@ class DetailTransaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'transaction_code',
+        'data_transaction_id',
         'item_code',
         'item_name',
         'quantity'

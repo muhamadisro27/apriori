@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\DataTransactionImport;
 use App\Models\DataTransaction;
 use App\Models\DetailTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
 class DataTransactionController extends Controller
@@ -33,27 +37,24 @@ class DataTransactionController extends Controller
                     return $model->transaction_code;
                 })
                 ->addColumn('IN', function ($model) {
-                    $item_names = DetailTransaction::where('transaction_code', $model->transaction_code)->get();
 
                     $item = "";
 
-                    if ($item_names) {
-                        foreach ($item_names as $detail => $key) {
-                            $item .= $key->item_name . ',';
+                    if ($model->detail_transaction) {
+                        foreach ($model->detail_transaction as $detail => $key) {
+                            $item .= $key->item_name . ', ';
                         }
 
-                        return $item;
+                        return Str::title($item);
                     }
-
 
                     return '-';
                 })
                 ->addColumn('QTY', function ($model) {
                     $qty = 0;
-                    $items = DetailTransaction::where('transaction_code', $model->transaction_code)->get();
 
-                    if ($items) {
-                        foreach ($items as $item) {
+                    if ($model->detail_transaction) {
+                        foreach ($model->detail_transaction as $item) {
                             $qty += $item->quantity;
                         }
 
@@ -65,5 +66,32 @@ class DataTransactionController extends Controller
 
             return $datatable->make(true);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $response = [];
+
+        try {
+            //code...
+            $this->validate($request, [
+                'file' => 'required|mimes:csv,xls,xlsx'
+            ]);
+
+            // import data
+            Excel::import(new DataTransactionImport, $request->file('file'));
+
+            $response = [
+                'status' => Response::HTTP_OK,
+                'message' => 'Successfully imported data transactions !'
+            ];
+        } catch (\Throwable $th) {
+            $response = [
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => $th->getMessage(),
+            ];
+        }
+
+        return redirect()->back()->with('response', $response);
     }
 }

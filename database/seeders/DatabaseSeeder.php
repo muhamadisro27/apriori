@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             DetailTransaction::create([
-                'transaction_code' => $transaction_create->transaction_code,
+                'data_transaction_id' => $transaction_create->id,
                 'item_code' => $transaction->item_code,
                 'item_name' => $transaction->item_name,
                 'quantity' => $transaction->quantity,

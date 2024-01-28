@@ -20,12 +20,15 @@ return new class extends Migration
 
         Schema::create('detail_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_code');
+            $table->bigInteger('data_transaction_id')->unsigned();
             $table->string('item_code');
             $table->string('item_name');
             $table->unsignedInteger('quantity');
             $table->timestamps();
-            $table->foreign('transaction_code')->references('transaction_code')->on('data_transactions')->onDelete('cascade');
+        });
+
+        Schema::table('detail_transactions', function (Blueprint $table) {
+            $table->foreign('data_transaction_id')->references('id')->on('data_transactions')->onDelete('cascade');
         });
     }
 

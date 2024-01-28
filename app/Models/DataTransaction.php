@@ -18,9 +18,9 @@ class DataTransaction extends Model
         'quantity'
     ];
 
-    public function detail_transactions()
+    public function detail_transaction()
     {
-        return $this->hasMany(DetailTransaction::class, 'transaction_code');
+        return $this->hasMany(DetailTransaction::class);
     }
 
     public static function filter()
@@ -37,8 +37,10 @@ class DataTransaction extends Model
         //                   count(detail_transactions.quantity) as total_quantity')
         //     ->groupBy('detail_transactions.transaction_code');
 
-        $transactions = DataTransaction::query()
-            ->select('date', 'transaction_code')->orderBy('date', 'desc');
+        $transactions = DataTransaction::query()->with('detail_transaction', function($q) {
+            $q->select('id', 'data_transaction_id' ,'item_name', 'quantity');
+        })
+        ->select('id', 'date', 'transaction_code')->orderBy('date', 'desc');
 
         return $transactions;
     }
