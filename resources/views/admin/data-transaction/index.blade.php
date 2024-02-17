@@ -51,14 +51,12 @@
                         </div>
                     </div>
 
-                    <x-slot name="footer_button">
-                        <div class="mt-3 row">
-                            <div class="flex-row-reverse gap-1 col-md-12 d-flex">
-                                <button type="submit" class="btn btn-primary">Apply</button>
-                                <a id="reset-filter" href="javascript:void(0)" class="btn btn-secondary">Reset</a>
-                            </div>
+                    <div class="mt-3 row">
+                        <div class="flex-row-reverse gap-1 col-md-12 d-flex">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                            <a id="reset-filter" href="javascript:void(0)" class="btn btn-secondary">Reset</a>
                         </div>
-                    </x-slot>
+                    </div>
                 </form>
             </x-filter-wrapper>
 
@@ -78,6 +76,7 @@
                                 <table id="datatable" class="table table-striped">
                                     <thead>
                                         <tr>
+                                            <th scope="col">No</th>
                                             <th scope="col">Tanggal Transaksi</th>
                                             <th scope="col">Kode Transaksi</th>
                                             <th scope="col">Nama Barang</th>
@@ -141,12 +140,12 @@
                 {
                     extend: 'excel',
                     text: "Download Excel",
-                    title: `Data Transaction - ${moment().format('YYYY-MM-DD')}`,
+                    title: `Data Transaksi - Periode {{ $date_start }} - {{ $date_end }}`,
                     action: newexportaction,
                     fieldBoundary: '',
                     fieldSeparator: ';',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
+                        columns: [1, 2, 3, 4, 5]
                     }
                 }
             ],
@@ -175,18 +174,23 @@
                 }
             },
             order: [
-                [0, 'desc'],
+                [1, 'desc'],
             ],
             columnDefs: [{
-                    targets: [0, 1, 3, 4],
+                    targets: [0, 4],
                     className: 'dt-center'
                 },
                 {
                     targets: [0],
-                    width: "15%"
+                    width: "6%"
                 }
             ],
             columns: [{
+                    data: 'No',
+                    searchable: false,
+                    orderable: false
+                },
+                {
                     data: "DT",
                     name: 'date',
                     searchable: false
@@ -202,7 +206,7 @@
                 {
                     data: "QTY",
                     name: "detail_transaction.quantity",
-                    searchable : false
+                    searchable: false
                 },
                 {
                     data: "Date Created",
@@ -211,5 +215,16 @@
                 },
             ]
         })
+
+        table.on('draw.dt', function() {
+            var info = table.page.info();
+            table.column(0, {
+                search: 'applied',
+                order: 'applied',
+                page: 'applied'
+            }).nodes().each(function(cell, i) {
+                cell.innerHTML = i + 1 + info.start;
+            });
+        });
     })
 </script>
