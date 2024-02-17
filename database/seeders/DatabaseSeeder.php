@@ -6,11 +6,13 @@ namespace Database\Seeders;
 
 use App\Models\DataTransaction;
 use App\Models\DetailTransaction;
+use App\Models\Item;
+use Carbon\Carbon;
 use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,8 +23,8 @@ class DatabaseSeeder extends Seeder
 
     public function __construct()
     {
-        $this->transactions = collect(json_decode(file_get_contents(__DIR__ . '../../data/data-transactions.json', true)));
-        $this->items = ['Sikat', 'Pelan', 'Sabun','Shampoo', 'Roti', 'Susu', 'Mentega', 'Minyak', 'Pel', 'Sapu'];
+        $this->transactions = Excel::toCollection(null, base_path('database/data/transactions.xlsx'));
+        $this->items = Excel::toCollection(null, base_path('database/data/items.xlsx'));
     }
 
     public function run(): void
@@ -34,37 +36,34 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('superadmin2024'),
         ]);
 
-        foreach ($this->transactions as $transaction) {
-            $transaction_create = DataTransaction::firstOrCreate([
-                'transaction_code' => $transaction->transaction_code,
-            ], [
-                'date' => $transaction->date,
-            ]);
-
-            DetailTransaction::create([
-                'data_transaction_id' => $transaction_create->id,
-                'item_code' => $transaction->item_code,
-                'item_name' => $transaction->item_name,
-                'quantity' => $transaction->quantity,
-            ]);
+        foreach ($this->items as $item) {
+            foreach ($item as $i) {
+                Item::firstOrCreate([
+                    'item_code' => $i[2],
+                ], [
+                    'item_name' => $i[1],
+                    'quantity' => rand(1,5)
+                ]);
+            }
         }
 
-        // for($i=1; $i < rand(100, 200); $i++) {
-        //     $transaction = DataTransaction::create([
-        //         'date' => now()->subDay(rand(1, 55)),
-        //         'transaction_code' => 'Ca-' . (string) $i
-        //     ]);
+        foreach ($this->transactions as $transaction) {
+            foreach ($transaction as $t) {
+                $date = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($t[4]))->translatedFormat('Y-m-d');
 
-        // }
+                $transaction_create = DataTransaction::firstOrCreate([
+                    'transaction_code' => $t[3],
+                ], [
+                    'date' => $date,
+                ]);
 
-        // for($j =0; $j < 500; $j++) {
-        //     DetailTransaction::firstOrCreate([
-        //         'item_code' => 'Gs00'. (string) $j,
-        //     ],[
-        //         'data_transaction_id' => DataTransaction::all()->random()->id,
-        //         'item_name' => Arr::random($this->items),
-        //         'quantity' => rand(5, 8)
-        //     ]);
-        // }
+                DetailTransaction::create([
+                    'item_code' => $t[0],
+                    'data_transaction_id' => $transaction_create->id,
+                    'item_name' => $t[1],
+                    'quantity' => $t[2]
+                ]);
+            }
+        }
     }
 }

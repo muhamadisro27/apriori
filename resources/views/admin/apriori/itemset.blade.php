@@ -116,6 +116,7 @@
                                             <th scope="col">Frekuensi</th>
                                             <th scope="col">Support Count</th>
                                             <th scope="col">Min Support</th>
+                                            <th scope="col">Keterangan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -182,7 +183,7 @@
                 }
             },
             order: [
-                [1, 'asc']
+                [4, 'desc']
             ],
             columnDefs: [{
                     targets: [0, 3, 4, 5],
@@ -227,6 +228,12 @@
                     data: "Minimal Support",
                     name: 'minimal_support',
                     searchable: false
+                },
+                {
+                    data: "Remark",
+                    name: 'is_passed',
+                    searchable: false,
+                    orderable :false
                 },
             ]
         })

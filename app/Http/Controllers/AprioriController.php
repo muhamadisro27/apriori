@@ -6,6 +6,8 @@ use App\Http\Requests\AprioriRequest;
 use App\Models\DataTransaction;
 use App\Models\DetailTransaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -23,6 +25,7 @@ class AprioriController extends Controller
 
     public function apriori(AprioriRequest $request)
     {
+
         $minimal_support = $request->support;
         $minimal_confidence = $request->confidence;
         $date_start = $request['date-start'];
@@ -76,9 +79,18 @@ class AprioriController extends Controller
                 })
                 ->addColumn('Minimal Support', function ($dataset) {
                     return $dataset['minimal_support'] . ' %';
+                })
+                ->addColumn('Remark', function ($dataset) {
+                    if ($dataset['is_passed'] == 1) {
+                        $remark = '<span class="text-white badge text-bg-success">Lolos</span>';
+                    } else {
+                        $remark = '<span class="text-white badge text-bg-danger">Tidak Lolos</span>';
+                    }
+
+                    return $remark;
                 });
 
-            return $datatable->make(true);
+            return $datatable->rawColumns(['Remark'])->make(true);
         }
     }
 
@@ -100,13 +112,21 @@ class AprioriController extends Controller
                 $support_count = $this->get_support_count($frequency, $total_transaction);
                 $minimal_support = $this->percentage_number($minimal_support);
 
+                $combinations[$i]['item_code'] = $items[$i]['item_code'];
+                $combinations[$i]['item_name'] = $items[$i]['item_name'];
+                $combinations[$i]['frequency'] = $frequency;
+                $combinations[$i]['support_count'] = $support_count;
+                $combinations[$i]['minimal_support'] = $minimal_support;
+
                 if ($support_count >= $minimal_support) {
-                    $combinations[$i]['item_code'] = $items[$i]['item_code'];
-                    $combinations[$i]['item_name'] = $items[$i]['item_name'];
-                    $combinations[$i]['frequency'] = $frequency;
-                    $combinations[$i]['support_count'] = $support_count;
-                    $combinations[$i]['minimal_support'] = $minimal_support;
+                    $combinations[$i]['is_passed'] = 1;
+                } else {
+                    $combinations[$i]['is_passed'] = 0;
                 }
+            }
+
+            if (!session()->has('new_combinations')) {
+                session()->push('new_combinations', $combinations);
             }
 
             return $combinations;
@@ -133,9 +153,20 @@ class AprioriController extends Controller
             }
         }
 
-        generateCombinations(0, [], $k, $items, $combinations);
+        $passed_combines = [];
+
+        foreach (session()->get('new_combinations') as $new) {
+            foreach ($new as $n) {
+                if ($n['is_passed'] == 1) {
+                    array_push($passed_combines, $n);
+                }
+            }
+        }
+
+        generateCombinations(0, [], $k, $passed_combines, $combinations);
 
         $i = 0;
+        $result_combines = [];
         foreach ($combinations as $combination) {
             $item_code = [];
             $item_name = [];
@@ -144,21 +175,26 @@ class AprioriController extends Controller
                 array_push($item_name, $item['item_name']);
             }
 
-            $frequency = $this->get_frequently($date_start, $date_end, $item_code);
+            $frequency = $this->get_frequently($date_start, $date_end, $item_code)['frequency'] ?? 0;
             $support_count = $this->get_support_count($frequency, $total_transaction);
             $minimal_support = $this->percentage_number($minimal_support);
 
+            $result_combines[$i]['item_code'] = implode(', ', $item_code);
+            $result_combines[$i]['item_name'] = implode(', ', $item_name);
+            $result_combines[$i]['frequency'] = $frequency;
+            $result_combines[$i]['support_count'] = $support_count;
+            $result_combines[$i]['minimal_support'] = $minimal_support;
 
-            $combinations[$i]['item_code'] = implode(', ', $item_code);
-            $combinations[$i]['item_name'] = implode(', ', $item_name);
-            $combinations[$i]['frequency'] = $frequency;
-            $combinations[$i]['support_count'] = $support_count;
-            $combinations[$i]['minimal_support'] = $minimal_support;
-            unset($combinations[$i][0], $combinations[$i][1]);
+            if ($support_count >= $minimal_support) {
+                $result_combines[$i]['is_passed'] = 1;
+            } else {
+                $result_combines[$i]['is_passed'] = 0;
+            }
+
             $i++;
         }
 
-        return collect($combinations);
+        return collect($result_combines);
     }
 
     public function get_sample_transactions($date_start, $date_end, $minimal_support, $dataset, $size, $total_transaction, $combinations = array())
@@ -220,15 +256,42 @@ class AprioriController extends Controller
 
     public function get_frequently($date_start, $date_end, $data)
     {
-        if (gettype($data) == 'array') {
-            $item_codes = $data;
+        if (isset($data['item_code'])) {
+            $item_codes[] = $data['item_code'];
         } else {
-            $item_codes = explode(',', $data['item_code']);
+            $item_codes = $data;
         }
 
-        return DataTransaction::whereHas('detail_transaction', function($q) use($item_codes) {
-            $q->whereIn('item_code', $item_codes);
-        })->where('date', '>=', $date_start)->where('date', '<=', $date_end)->count();
+        // $wheres = [];
+        // $i = 0;
+        // foreach($item_codes as $item_code) {
+        //     $wheres[$i] = ['item_code', '=', $item_code];
+        //     $i++;
+        // }
+
+        if (count($item_codes) <= 1) {
+            $count = DataTransaction::with('detail_transaction')->whereHas('detail_transaction', function ($q) use ($item_codes) {
+                $q->whereIn('item_code', $item_codes);
+            })->where('date', '>=', $date_start)->where('date', '<=', $date_end)->count();
+
+            return $count;
+        } else {
+            $count = DataTransaction::select('t1.item_code as item1', 't2.item_code as item2')
+                ->join('detail_transactions as t1', 't1.data_transaction_id', '=', 'data_transactions.id')
+                ->join('detail_transactions as t2', 't2.data_transaction_id', '=', 'data_transactions.id')
+                ->where('t1.item_code', '<', 't2.item_code')
+                ->where('t1.item_code', '!=', 't2.item_code')
+                ->where('data_transactions.date', '>=', $date_start)
+                ->where('data_transactions.date', '<=', $date_end)
+                ->where('t1.item_code', $item_codes[0])
+                ->where('t2.item_code', $item_codes[1])
+                ->groupBy('t1.item_code', 't2.item_code')
+                ->selectRaw('COUNT(t1.data_transaction_id) as frequency')
+                ->first();
+
+
+            return $count ?? 0;
+        }
     }
 
     public function get_support_count($frequently, $total_transaction): float
