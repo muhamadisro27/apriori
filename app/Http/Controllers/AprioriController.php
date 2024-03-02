@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AprioriRequest;
 use App\Models\DataTransaction;
+use App\Models\DetailResultItemset;
 use App\Models\DetailTransaction;
+use App\Models\ResultItemset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class AprioriController extends Controller
         }
         $k =  session()->get('k-itemset');
         $data = [];
+        $dataset = $this->get_dataset($date_start, $date_end, $minimal_support, $minimal_confidence, $k);
 
         $data['title'] = $k;
         $data['date_start'] = $date_start;
@@ -43,6 +46,7 @@ class AprioriController extends Controller
         $data['support'] = $minimal_support;
         $data['confidence'] = $minimal_confidence;
         $data['total_transaction'] = $total_transaction;
+        $data['dataset'] = $dataset;
 
         return view('admin.apriori.itemset', $data);
     }
@@ -50,15 +54,37 @@ class AprioriController extends Controller
     public function apriori_get(): JsonResponse
     {
         if (request()->ajax()) {
-            $date_start = request('date_start');
-            $date_end = request('date_end');
-            $minimal_support = (int) request('minimal_support');
-            $minimal_confidence = (int) request('minimal_confidence');
-            $k = session()->get('k-itemset');
+            $dataset = $this->collect_data_itemset(session()->get('current_apriori_id'));
 
-            $dataset = $this->get_dataset($date_start, $date_end, $minimal_support, $minimal_confidence, $k);
 
-            $datatable =  DataTables::collection($dataset);
+            if(session()->get('k-itemset') <= 1) {
+                $data = null;
+                $data = $dataset->combinations;
+            } else {
+                $data = [];
+                $i = 0;
+                foreach($dataset->combinations->where('result_itemset_id', session()->get('current_apriori_id'))->groupBy('item_set_combination') as $combination) {
+                    $item_name = [];
+                    $item_code = [];
+                    foreach($combination as $item) {
+                        array_push($item_name, $item->item_names);
+                        array_push($item_code, $item->item_codes);
+                    }
+
+                    $data[$i] = [
+                        'item_codes' => implode(',', $item_code),
+                        'item_names' => implode(',', $item_name),
+                        'frequency' => $combination[0]->frequency,
+                        'support_count' => $combination[0]->support_count,
+                        'minimal_support' => $combination[0]->minimal_support,
+                        'remark' => $combination[0]->remark,
+                    ];
+
+                    $i++;
+                }
+            }
+
+            $datatable =  DataTables::collection($data);
 
             $no = 1;
             $datatable->addColumn('No', function ($dataset) use ($no) {
@@ -66,10 +92,10 @@ class AprioriController extends Controller
                 return $no;
             })
                 ->addColumn('Item Code', function ($dataset) {
-                    return $dataset['item_code'];
+                    return $dataset['item_codes'];
                 })
                 ->addColumn('Item Name', function ($dataset) {
-                    return $dataset['item_name'];
+                    return $dataset['item_names'];
                 })
                 ->addColumn('Frequently', function ($dataset) {
                     return $dataset['frequency'];
@@ -81,7 +107,7 @@ class AprioriController extends Controller
                     return $dataset['minimal_support'] . ' %';
                 })
                 ->addColumn('Remark', function ($dataset) {
-                    if ($dataset['is_passed'] == 1) {
+                    if ($dataset['remark'] == 1) {
                         $remark = '<span class="text-white badge text-bg-success">Lolos</span>';
                     } else {
                         $remark = '<span class="text-white badge text-bg-danger">Tidak Lolos</span>';
@@ -94,10 +120,20 @@ class AprioriController extends Controller
         }
     }
 
+    public function collect_data_itemset($current)
+    {
+        if(session()->get('k-itemset') <= 1) {
+            return ResultItemset::with('combinations')->where('id', $current)->latest()->first();
+        } else {
+            return ResultItemset::with('combinations')->whereHas('combinations', function($q) {
+                $q->where('item_set_combination', '<>', 0);
+            })->where('id', $current)->latest()->first();
+        }
+    }
+
     // refactor to service
     public function get_dataset($date_start, $date_end, $minimal_support, $minimal_confidence, $k)
     {
-
         $items = DetailTransaction::whereHas('transaction', function ($q) use ($date_start, $date_end) {
             $q->where('date', '>=', $date_start)->where('date', '<=', $date_end);
         })->distinct()->get(['item_name', 'item_code'])->toArray();
@@ -106,7 +142,13 @@ class AprioriController extends Controller
 
         $combinations = [];
 
+
         if ($k <= 1) {
+            $result = ResultItemset::create([
+                'date' => now(),
+                'item_set_combination' => session()->get('k-itemset') ?? 0
+            ]);
+
             for ($i = 0; $i < count($items); $i++) {
                 $frequency = $this->get_frequently($date_start, $date_end, $items[$i]);
                 $support_count = $this->get_support_count($frequency, $total_transaction);
@@ -123,10 +165,30 @@ class AprioriController extends Controller
                 } else {
                     $combinations[$i]['is_passed'] = 0;
                 }
+
+                try {
+                    DB::beginTransaction();
+
+                    DetailResultItemset::create([
+                        'result_itemset_id' => $result->id,
+                        'item_set_combination' => $i,
+                        'item_codes' => $combinations[$i]['item_code'],
+                        'item_names' => $combinations[$i]['item_name'],
+                        'frequency' => $combinations[$i]['frequency'],
+                        'support_count' => $combinations[$i]['support_count'],
+                        'minimal_support' => $combinations[$i]['minimal_support'],
+                        'remark' => $combinations[$i]['is_passed'],
+                    ]);
+
+                    DB::commit();
+                } catch (\Throwable $th) {
+                    dd($th->getMessage());
+                    DB::rollBack();
+                }
             }
 
-            if (!session()->has('new_combinations')) {
-                session()->push('new_combinations', $combinations);
+            if (!session()->has('current_apriori_id')) {
+                session()->put('current_apriori_id', $result->id);
             }
 
             return $combinations;
@@ -148,18 +210,18 @@ class AprioriController extends Controller
                 $newCombination = $currentCombination;
                 $newCombination[] = $items[$i];
 
+
                 // Panggil rekursif dengan itemset yang lebih panjang
                 generateCombinations($i + 1, $newCombination, $k, $items, $combinations);
             }
         }
 
         $passed_combines = [];
+        $current_dataset = $this->collect_data_itemset(session()->get('current_apriori_id'));
 
-        foreach (session()->get('new_combinations') as $new) {
-            foreach ($new as $n) {
-                if ($n['is_passed'] == 1) {
-                    array_push($passed_combines, $n);
-                }
+        foreach ($current_dataset->combinations as $new) {
+            if ($new['remark'] == 1) {
+                array_push($passed_combines, $new);
             }
         }
 
@@ -167,91 +229,75 @@ class AprioriController extends Controller
 
         $i = 0;
         $result_combines = [];
+        $result_2 = ResultItemset::create([
+            'date' => now(),
+            'item_set_combination' => session()->get('k-itemset') ?? 0
+        ]);
+
         foreach ($combinations as $combination) {
             $item_code = [];
             $item_name = [];
             foreach ($combination as $item) {
-                array_push($item_code, $item['item_code']);
-                array_push($item_name, $item['item_name']);
-            }
-
-            $frequency = $this->get_frequently($date_start, $date_end, $item_code)['frequency'] ?? 0;
-            $support_count = $this->get_support_count($frequency, $total_transaction);
-            $minimal_support = $this->percentage_number($minimal_support);
-
-            $result_combines[$i]['item_code'] = implode(', ', $item_code);
-            $result_combines[$i]['item_name'] = implode(', ', $item_name);
-            $result_combines[$i]['frequency'] = $frequency;
-            $result_combines[$i]['support_count'] = $support_count;
-            $result_combines[$i]['minimal_support'] = $minimal_support;
-
-            if ($support_count >= $minimal_support) {
-                $result_combines[$i]['is_passed'] = 1;
-            } else {
-                $result_combines[$i]['is_passed'] = 0;
-            }
-
-            $i++;
-        }
-
-        return collect($result_combines);
-    }
-
-    public function get_sample_transactions($date_start, $date_end, $minimal_support, $dataset, $size, $total_transaction, $combinations = array())
-    {
-        if ($size === 1) {
-            $i = 0;
-            $new_data = [];
-
-            foreach ($dataset as $data) {
-                $frequently = $this->get_frequently($date_start, $date_end, $data);
-                $support_each_items = $this->get_support_count($frequently, $total_transaction);
-                if ($support_each_items >= $minimal_support) {
-                    $new_data[$i]['item_code'] = $data['item_code'];
-                    $new_data[$i]['item_name'] = $data['item_name'];
-                    $new_data[$i]['frequently'] = $frequently;
-                    $new_data[$i]['support_count'] = $support_each_items;
-                    $new_data[$i]['minimal_support'] = $this->percentage_number($minimal_support);
-                    $i++;
+                if(!in_array($item['item_codes'], $item_code)) {
+                    array_push($item_code, $item['item_codes']);
+                    array_push($item_name, $item['item_names']);
                 }
             }
 
-            return $new_data;
-        }
+            if(count($item_code) < session()->get('k-itemset')) {
+                unset($item_code);
+                unset($item_name);
+            } else {
+                $frequency = $this->get_frequently($date_start, $date_end, $item_code)['frequency'] ?? 0;
+                $support_count = $this->get_support_count($frequency, $total_transaction);
+                $minimal_support = $this->percentage_number($minimal_support);
 
-        $new_combinations = array();
+                $result_combines[$i]['item_code'] = implode(',', $item_code);
+                $result_combines[$i]['item_name'] = implode(',', $item_name);
+                $result_combines[$i]['frequency'] = $frequency;
+                $result_combines[$i]['support_count'] = $support_count;
+                $result_combines[$i]['minimal_support'] = $minimal_support;
 
-        $itemset_combinations = [];
-        $j = 0;
-        dd($dataset);
-        foreach ($dataset as $combination) {
-            $result_combine = DetailTransaction::select('item_code', 'item_name')->distinct()->where('item_code', '<>', $combination['item_code'])->get(['item_code']);
+                if ($support_count >= $minimal_support) {
+                    $result_combines[$i]['is_passed'] = 1;
+                } else {
+                    $result_combines[$i]['is_passed'] = 0;
+                }
 
-            $i = 0;
-            foreach ($result_combine as $data) {
-                $itemset_combinations[$j]['item_code'] = $combination['item_code'] . ',' . $data['item_code'];
-                $itemset_combinations[$j]['item_name'] = $combination['item_name'] . ',' . $data['item_name'];
+                try {
+                    DB::beginTransaction();
+
+                    for ($k = 0; $k < count(explode(',', $result_combines[$i]['item_code'])); $k++) {
+                        DetailResultItemset::create([
+                            'result_itemset_id' => $result_2->id,
+                            'item_set_combination' => $i,
+                            'item_codes' => explode(',', $result_combines[$i]['item_code'])[$k],
+                            'item_names' => explode(',', $result_combines[$i]['item_name'])[$k],
+                            'frequency' => $result_combines[$i]['frequency'],
+                            'support_count' => $result_combines[$i]['support_count'],
+                            'minimal_support' => $result_combines[$i]['minimal_support'],
+                            'remark' => $result_combines[$i]['is_passed'],
+                        ]);
+                    }
+
+                    DB::commit();
+                } catch (\Throwable $th) {
+                    dd($th->getMessage());
+                    DB::rollBack();
+                }
+
                 $i++;
             }
-            $j++;
+
+            // dd($result_combines);
         }
 
-        $index = 0;
-        foreach ($itemset_combinations as $itemset) {
-            $frequently = $this->get_frequently($date_start, $date_end, $itemset);
-            $support_each_items = $this->get_support_count($frequently, $total_transaction);
-            $minimal_support = $this->percentage_number($minimal_support);
-            $new_combinations[$index]['item_code'] = $itemset['item_code'];
-            $new_combinations[$index]['item_name'] = $itemset['item_name'];
-            $new_combinations[$index]['frequently'] = $frequently;
-            $new_combinations[$index]['support_count'] = $support_each_items;
-            $new_combinations[$index]['minimal_support'] = $minimal_support;
-            $index++;
+        if (session()->has('current_apriori_id')) {
+            session()->forget('current_apriori_id');
+            session()->put('current_apriori_id', $result_2->id);
         }
 
-        session()->put('itemset', $new_combinations);
-
-        return $new_combinations;
+        return collect($result_combines);
     }
 
     public function get_frequently($date_start, $date_end, $data)
@@ -261,13 +307,6 @@ class AprioriController extends Controller
         } else {
             $item_codes = $data;
         }
-
-        // $wheres = [];
-        // $i = 0;
-        // foreach($item_codes as $item_code) {
-        //     $wheres[$i] = ['item_code', '=', $item_code];
-        //     $i++;
-        // }
 
         if (count($item_codes) <= 1) {
             $count = DataTransaction::with('detail_transaction')->whereHas('detail_transaction', function ($q) use ($item_codes) {

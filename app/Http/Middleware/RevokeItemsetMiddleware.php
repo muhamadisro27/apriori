@@ -15,9 +15,9 @@ class RevokeItemsetMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (session()->has('k-itemset') || session()->has('new_combinations')) {
+        if (session()->has('k-itemset') || session()->has('current_apriori_id')) {
             session()->forget('k-itemset');
-            session()->forget('new_combinations');
+            session()->forget('current_apriori_id');
         }
 
         return $next($request);

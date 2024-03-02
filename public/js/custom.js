@@ -101,6 +101,69 @@ function datePicker(start_date = "", end_date = "", add_params = true) {
         });
 }
 
+function deleteData(route = "") {
+    $(document).on("click", "#form-delete", function (e) {
+        e.preventDefault();
+
+        let id = $("#id").val();
+
+        let url = e.currentTarget.action;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if ($(this).data("requestRunning")) {
+                    return;
+                }
+
+                $(this).data("requestRunning", true);
+
+                $.ajax({
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                            "content"
+                        ),
+                    },
+                    url,
+                    type: "DELETE",
+                    data: {
+                        id: id,
+                    },
+                })
+                    .then((response) => {
+                        if (response.status == 200) {
+                            toastr.success(response.message);
+                        } else {
+                            toastr.error(response.message);
+                        }
+
+                        if (response.type == "redirect" && route != "") {
+                            setTimeout(() => {
+                                window.location = route;
+                            }, 1500);
+                        } else {
+                            table.ajax.reload();
+                        }
+
+                        $(this).data("requestRunning", false);
+                    })
+                    .catch((error) => {
+                        toastr.error("Server Error");
+                        $(this).data("requestRunning", false);
+                    });
+            }
+        });
+    });
+}
+
+
 async function save(
     forms,
     form,

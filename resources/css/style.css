@@ -6466,7 +6466,7 @@ html:not([dir=rtl]) .list-group-horizontal > .list-group-item + .list-group-item
 .btn-close-white {
   filter: invert(1) grayscale(100%) brightness(200%);
 }
-
+/* 
 .toast {
   --cui-toast-zindex: 1090;
   --cui-toast-padding-x: 0.75rem;
@@ -6538,7 +6538,7 @@ html:not([dir=rtl]) .toast-header .btn-close {
 .toast-body {
   padding: var(--cui-toast-padding-x);
   word-wrap: break-word;
-}
+} */
 
 .modal {
   --cui-modal-zindex: 1055;

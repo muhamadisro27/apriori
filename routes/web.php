@@ -36,6 +36,24 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::post('/', 'apriori')->middleware('add_itemset');
         Route::get('/get-data', 'apriori_get')->name('get-data');
     });
+
+    Route::prefix('item')->controller(App\Http\Controllers\ItemController::class)->name('item.')->group(function () {
+        Route::get('/', 'index');
+        Route::get('get-data', 'get_data')->name('get-data');
+        Route::get('create', 'form')->name('create');
+        Route::get('edit/{item}', 'form')->name('edit');
+        Route::post('save/{item?}', 'save')->name('save');
+        Route::delete('destroy/{item}', 'destroy')->name('destroy');
+    });
+
+    Route::prefix('user')->controller(App\Http\Controllers\UserController::class)->name('user.')->group(function () {
+        Route::get('/', 'index');
+        Route::get('get-data', 'get_data')->name('get-data');
+        Route::get('create', 'form')->name('create');
+        Route::get('edit/{user}', 'form')->name('edit');
+        Route::post('save/{user?}', 'save')->name('save');
+        Route::delete('destroy/{user}', 'destroy')->name('destroy');
+    });
 });
 
 

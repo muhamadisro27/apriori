@@ -6,8 +6,10 @@
 <script src="{{ asset('vendors/js/datatables-buttons.min.js') }}"></script>
 <script src="{{ asset('vendors/js/jzip.min.js') }}"></script>
 <script src="{{ asset('vendors/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('vendors/js/sweetalert2.all.min.js') }}"></script>
 <script src="{{ asset('js/custom.js') }}"></script>
 <script>
     var datepicker_startDate = '{{ date('Y-m-01') }}';
     var datepicker_endDate = '{{ date('Y-m-d') }}';
 </script>
+@stack('script-processing')

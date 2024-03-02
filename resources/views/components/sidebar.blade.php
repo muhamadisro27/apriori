@@ -17,10 +17,18 @@
                 <i class="nav-icon cil-bar-chart">
                 </i> Data Transaksi</a>
         </li>
+        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.item.') ? 'active' : '' }}" href="{{ route('admin.item.') }}">
+                <i class="nav-icon cil-list">
+                </i> Data Item</a>
+        </li>
+        <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.user.')  ? 'active' : '' }}" href="{{ route('admin.user.') }}">
+                <i class="nav-icon cil-user">
+                </i> User</a>
+        </li>
     </ul>
 </div>
 {{-- <div class="sidebar sidebar-light sidebar-lg sidebar-end sidebar-overlaid hide" id="aside">
-    <div class="sidebar-header bg-transparent p-0">
+    <div class="p-0 bg-transparent sidebar-header">
         <ul class="nav nav-underline nav-underline-primary" role="tablist">
             <li class="nav-item"><a class="nav-link active" data-coreui-toggle="tab" href="#timeline" role="tab">
                     <svg class="icon">
@@ -46,7 +54,7 @@
         <div class="tab-pane active" id="timeline" role="tabpanel">
             <div class="list-group list-group-flush">
                 <div
-                    class="list-group-item border-start-4 border-start-secondary bg-light text-center fw-bold text-medium-emphasis text-uppercase small dark:bg-white dark:bg-opacity-10 dark:text-medium-emphasis">
+                    class="text-center list-group-item border-start-4 border-start-secondary bg-light fw-bold text-medium-emphasis text-uppercase small dark:bg-white dark:bg-opacity-10 dark:text-medium-emphasis">
                     Today</div>
                 <div class="list-group-item border-start-4 border-start-warning list-group-item-divider">
                     <div class="avatar avatar-lg float-end"><img class="avatar-img" src="assets/img/avatars/7.jpg"
@@ -71,7 +79,7 @@
                         </svg> On-line</small>
                 </div>
                 <div
-                    class="list-group-item border-start-4 border-start-secondary bg-light text-center fw-bold text-medium-emphasis text-uppercase small dark:bg-white dark:bg-opacity-10 dark:text-medium-emphasis">
+                    class="text-center list-group-item border-start-4 border-start-secondary bg-light fw-bold text-medium-emphasis text-uppercase small dark:bg-white dark:bg-opacity-10 dark:text-medium-emphasis">
                     Tomorrow</div>
                 <div class="list-group-item border-start-4 border-start-danger list-group-item-divider">
                     <div>New UI Project - <strong>deadline</strong></div><small class="text-medium-emphasis me-3">
@@ -81,7 +89,7 @@
                         <svg class="icon">
                             <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-home"></use>
                         </svg> creativeLabs HQ</small>
-                    <div class="avatars-stack mt-2">
+                    <div class="mt-2 avatars-stack">
                         <div class="avatar avatar-xs"><img class="avatar-img" src="assets/img/avatars/2.jpg"
                                 alt="user@email.com"></div>
                         <div class="avatar avatar-xs"><img class="avatar-img" src="assets/img/avatars/3.jpg"
@@ -111,7 +119,7 @@
                         <svg class="icon">
                             <use xlink:href="vendors/@coreui/icons/svg/free.svg#cil-home"></use>
                         </svg> creativeLabs HQ</small>
-                    <div class="avatars-stack mt-2">
+                    <div class="mt-2 avatars-stack">
                         <div class="avatar avatar-xs"><img class="avatar-img" src="assets/img/avatars/2.jpg"
                                 alt="user@email.com"></div>
                         <div class="avatar avatar-xs"><img class="avatar-img" src="assets/img/avatars/3.jpg"
@@ -130,14 +138,14 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane p-3" id="messages" role="tabpanel">
+        <div class="p-3 tab-pane" id="messages" role="tabpanel">
             <div class="message">
                 <div class="py-3 pb-5 me-3 float-start">
                     <div class="avatar"><img class="avatar-img" src="assets/img/avatars/7.jpg"
                             alt="user@email.com"><span class="avatar-status bg-success"></span></div>
                 </div>
                 <div><small class="text-medium-emphasis">Lukasz Holeczek</small><small
-                        class="text-medium-emphasis float-end mt-1">1:52 PM</small></div>
+                        class="mt-1 text-medium-emphasis float-end">1:52 PM</small></div>
                 <div class="text-truncate fw-bold">Lorem ipsum dolor sit amet</div><small
                     class="text-medium-emphasis">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
                     eiusmod tempor incididunt...</small>
@@ -149,7 +157,7 @@
                             alt="user@email.com"><span class="avatar-status bg-success"></span></div>
                 </div>
                 <div><small class="text-medium-emphasis">Lukasz Holeczek</small><small
-                        class="text-medium-emphasis float-end mt-1">1:52 PM</small></div>
+                        class="mt-1 text-medium-emphasis float-end">1:52 PM</small></div>
                 <div class="text-truncate fw-bold">Lorem ipsum dolor sit amet</div><small
                     class="text-medium-emphasis">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
                     eiusmod tempor incididunt...</small>
@@ -161,7 +169,7 @@
                             alt="user@email.com"><span class="avatar-status bg-success"></span></div>
                 </div>
                 <div><small class="text-medium-emphasis">Lukasz Holeczek</small><small
-                        class="text-medium-emphasis float-end mt-1">1:52 PM</small></div>
+                        class="mt-1 text-medium-emphasis float-end">1:52 PM</small></div>
                 <div class="text-truncate fw-bold">Lorem ipsum dolor sit amet</div><small
                     class="text-medium-emphasis">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
                     eiusmod tempor incididunt...</small>
@@ -173,7 +181,7 @@
                             alt="user@email.com"><span class="avatar-status bg-success"></span></div>
                 </div>
                 <div><small class="text-medium-emphasis">Lukasz Holeczek</small><small
-                        class="text-medium-emphasis float-end mt-1">1:52 PM</small></div>
+                        class="mt-1 text-medium-emphasis float-end">1:52 PM</small></div>
                 <div class="text-truncate fw-bold">Lorem ipsum dolor sit amet</div><small
                     class="text-medium-emphasis">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
                     eiusmod tempor incididunt...</small>
@@ -185,13 +193,13 @@
                             alt="user@email.com"><span class="avatar-status bg-success"></span></div>
                 </div>
                 <div><small class="text-medium-emphasis">Lukasz Holeczek</small><small
-                        class="text-medium-emphasis float-end mt-1">1:52 PM</small></div>
+                        class="mt-1 text-medium-emphasis float-end">1:52 PM</small></div>
                 <div class="text-truncate fw-bold">Lorem ipsum dolor sit amet</div><small
                     class="text-medium-emphasis">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
                     eiusmod tempor incididunt...</small>
             </div>
         </div>
-        <div class="tab-pane p-3" id="settings" role="tabpanel">
+        <div class="p-3 tab-pane" id="settings" role="tabpanel">
             <h6>Settings</h6>
             <div class="aside-options">
                 <div class="clearfix mt-4">
@@ -237,22 +245,22 @@
             </div>
             <hr>
             <h6>System Utilization</h6>
-            <div class="text-uppercase mb-1 mt-4"><small><b>CPU Usage</b></small></div>
+            <div class="mt-4 mb-1 text-uppercase"><small><b>CPU Usage</b></small></div>
             <div class="progress progress-thin">
                 <div class="progress-bar bg-info" role="progressbar" style="width: 25%" aria-valuenow="25"
                     aria-valuemin="0" aria-valuemax="100"></div>
             </div><small class="text-medium-emphasis">348 Processes. 1/4 Cores.</small>
-            <div class="text-uppercase mb-1 mt-2"><small><b>Memory Usage</b></small></div>
+            <div class="mt-2 mb-1 text-uppercase"><small><b>Memory Usage</b></small></div>
             <div class="progress progress-thin">
                 <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70"
                     aria-valuemin="0" aria-valuemax="100"></div>
             </div><small class="text-medium-emphasis">11444GB/16384MB</small>
-            <div class="text-uppercase mb-1 mt-2"><small><b>SSD 1 Usage</b></small></div>
+            <div class="mt-2 mb-1 text-uppercase"><small><b>SSD 1 Usage</b></small></div>
             <div class="progress progress-thin">
                 <div class="progress-bar bg-danger" role="progressbar" style="width: 95%" aria-valuenow="95"
                     aria-valuemin="0" aria-valuemax="100"></div>
             </div><small class="text-medium-emphasis">243GB/256GB</small>
-            <div class="text-uppercase mb-1 mt-2"><small><b>SSD 2 Usage</b></small></div>
+            <div class="mt-2 mb-1 text-uppercase"><small><b>SSD 2 Usage</b></small></div>
             <div class="progress progress-thin">
                 <div class="progress-bar bg-success" role="progressbar" style="width: 10%" aria-valuenow="10"
                     aria-valuemin="0" aria-valuemax="100"></div>

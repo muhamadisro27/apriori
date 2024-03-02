@@ -29,7 +29,7 @@
                         <label for="date-start">Date Start :</label>
                         <div class="mb-1 input-group">
                             <span class="input-group-text"><i class='cil-calendar'></i></span>
-                            <input type="text" class="form-control" name="date-start" value="{{ $date_start }}"
+                            <input type="text" class="form-control" readonly name="date-start" value="{{ $date_start }}"
                                 id="date-start">
                         </div>
                         <x-input-error :messages="$errors->get('date-start')" class="mt-2" />
@@ -38,7 +38,7 @@
                         <label for="date-end">Date End :</label>
                         <div class="mb-1 input-group">
                             <span class="input-group-text"><i class='cil-calendar'></i></span>
-                            <input type="text" class="form-control" name="date-end" value="{{ $date_end }}"
+                            <input type="text" class="form-control" readonly name="date-end" value="{{ $date_end }}"
                                 id="date-end">
                         </div>
                         <x-input-error :messages="$errors->get('date-end')" class="mt-2" />
@@ -47,7 +47,7 @@
                     <div class="mb-3 col-sm-6 col-md-6 col-lg-3">
                         <label for="support">Minimum Support :</label>
                         <div class="mb-1 input-group">
-                            <input type="text" class="form-control" name="support"
+                            <input type="text" class="form-control" name="support" readonly
                                 placeholder="masukkan angka support.." onkeypress="validate_keypress(event)"
                                 id="support" value="{{ old('support', isset($support) ? $support : null) }}">
                             <span class="input-group-text">%</span>
@@ -57,20 +57,13 @@
                     <div class="mb-3 col-sm-6 col-md-6 col-lg-3">
                         <label for="confidence">Minimum Confidence :</label>
                         <div class="mb-1 input-group">
-                            <input type="text" class="form-control" name="confidence"
+                            <input type="text" class="form-control" name="confidence" readonly
                                 placeholder="masukkan angka confidence.." onkeypress="validate_keypress(event)"
                                 id="confidence"
                                 value="{{ old('confidence', isset($confidence) ? $confidence : null) }}">
                             <span class="input-group-text">%</span>
                         </div>
                         <x-input-error :messages="$errors->get('confidence')" class="mt-2" />
-                    </div>
-                </div>
-
-
-                <div class="mt-3 row">
-                    <div class="flex-row-reverse gap-1 col-md-12 d-flex">
-                        <button type="submit" class="btn btn-primary">Proses</button>
                     </div>
                 </div>
             </form>
@@ -195,7 +188,7 @@
                 }
             ],
             createdRow: function( row, data, dataIndex){
-                if(data.support_count >= data.minimal_support) {
+                if(data.remark == 1) {
                     $(row).addClass('greenClass');
                 } else {
                     $(row).addClass('redClass');

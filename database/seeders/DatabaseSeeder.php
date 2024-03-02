@@ -13,6 +13,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Uuid;
 
 class DatabaseSeeder extends Seeder
 {
@@ -31,9 +32,11 @@ class DatabaseSeeder extends Seeder
     {
         \App\Models\User::firstOrCreate([
             'email' => 'superadmin@mail.com',
+            'uuid' => Uuid::uuid1()
         ], [
             'name' => 'Super Admin',
             'password' => Hash::make('superadmin2024'),
+            'phone_number' => '-'
         ]);
 
         foreach ($this->items as $item) {
@@ -41,6 +44,7 @@ class DatabaseSeeder extends Seeder
                 Item::firstOrCreate([
                     'item_code' => $i[2],
                 ], [
+                    'uuid' => Uuid::uuid1(),
                     'item_name' => $i[1],
                     'quantity' => rand(1,5)
                 ]);
