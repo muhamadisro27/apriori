@@ -35,6 +35,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         Route::get('/', 'index')->middleware('revoke_itemset');
         Route::post('/', 'apriori')->middleware('add_itemset');
         Route::get('/get-data', 'apriori_get')->name('get-data');
+        Route::post('/generate', 'apriori_generate')->name('generate');
+        Route::get('/get-generate-data', 'apriori_generate_data')->name('get-generate-data');
     });
 
     Route::prefix('item')->controller(App\Http\Controllers\ItemController::class)->name('item.')->group(function () {
@@ -87,6 +89,118 @@ Route::get('test', function () {
     generateCombinations(0, [], $k, $items, $combinations);
 
     return $combinations;
+});
+
+Route::get('associate', function () {
+    function calculateSupport($transactions, $itemset)
+    {
+        // Hitung jumlah transaksi yang mendukung itemset
+        $supportCount = 0;
+
+        foreach ($transactions as $transaction) {
+            if (array_diff($itemset, $transaction) == []) {
+                $supportCount++;
+            }
+        }
+
+        return $supportCount;
+    }
+
+    function calculateConfidence($transactions, $X, $Y)
+    {
+        // Hitung support untuk X
+        $supportX = calculateSupport($transactions, $X);
+
+        // Hitung support untuk X union Y
+        $supportXY = calculateSupport($transactions, array_merge($X, $Y));
+
+        // Hitung confidence menggunakan rumus
+        if ($supportX > 0) {
+            $confidence = $supportXY / $supportX;
+            return $confidence;
+        } else {
+            return 0; // untuk menghindari pembagian oleh 0 jika supportX = 0
+        }
+    }
+
+    function generateAssociationRules($transactions, $frequentItemsets, $minConfidence)
+    {
+        $associationRules = [];
+
+        foreach ($frequentItemsets as $itemset) {
+            $itemsetSize = count($itemset);
+
+            if ($itemsetSize > 1) {
+                $subsets = getSubsets($itemset);
+
+                foreach ($subsets as $subset) {
+                    $complement = array_diff($itemset, $subset);
+
+                    $confidence = calculateConfidence($transactions, $subset, $complement);
+
+
+                    if ($confidence >= $minConfidence) {
+                        $associationRules[] = [
+                            'X' => $subset,
+                            'Y' => $complement,
+                            'confidence' => $confidence
+                        ];
+                    }
+                }
+            }
+        }
+
+
+        return $associationRules;
+    }
+
+    function getSubsets($itemset)
+    {
+        $subsets = [[]];
+
+        foreach ($itemset as $item) {
+            $newSubsets = [];
+
+            foreach ($subsets as $subset) {
+                $newSubset = $subset;
+                $newSubset[] = $item;
+                $newSubsets[] = $newSubset;
+            }
+
+            $subsets = array_merge($subsets, $newSubsets);
+        }
+
+        // Hapus subset kosong (tanpa item)
+        array_shift($subsets);
+
+        return $subsets;
+    }
+
+    // Contoh penggunaan
+    $transactions = [
+        ['A', 'B', 'C'],
+        ['A', 'B'],
+        ['A', 'C'],
+        ['B', 'C'],
+    ];
+
+    $frequentItemsets = [
+
+        ['A', 'B'],
+
+    ];
+
+    $minConfidence = 0.5;
+
+    $associationRules = generateAssociationRules($transactions, $frequentItemsets, $minConfidence);
+
+
+
+
+    // Tampilkan aturan asosiasi yang dihasilkan
+    foreach ($associationRules as $rule) {
+        echo implode(', ', $rule['X']) . ' => ' . implode(', ', $rule['Y']) . ' (Confidence: ' . $rule['confidence'] . ')' . PHP_EOL . '<br>';
+    }
 });
 
 require __DIR__ . '/auth.php';

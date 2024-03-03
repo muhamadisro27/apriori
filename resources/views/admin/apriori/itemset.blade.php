@@ -23,14 +23,14 @@
             <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
                 @csrf
                 <input type="hidden" class="form-control" name="k-itemset" value="{{ session()->get('k-itemset') }}"
-                id="k-itemset">
+                    id="k-itemset">
                 <div class="row">
                     <div class="mb-3 col-sm-6 col-md-6 col-lg-3">
                         <label for="date-start">Date Start :</label>
                         <div class="mb-1 input-group">
                             <span class="input-group-text"><i class='cil-calendar'></i></span>
-                            <input type="text" class="form-control" readonly name="date-start" value="{{ $date_start }}"
-                                id="date-start">
+                            <input type="text" class="form-control" readonly name="date-start"
+                                value="{{ $date_start }}" id="date-start">
                         </div>
                         <x-input-error :messages="$errors->get('date-start')" class="mt-2" />
                     </div>
@@ -38,8 +38,8 @@
                         <label for="date-end">Date End :</label>
                         <div class="mb-1 input-group">
                             <span class="input-group-text"><i class='cil-calendar'></i></span>
-                            <input type="text" class="form-control" readonly name="date-end" value="{{ $date_end }}"
-                                id="date-end">
+                            <input type="text" class="form-control" readonly name="date-end"
+                                value="{{ $date_end }}" id="date-end">
                         </div>
                         <x-input-error :messages="$errors->get('date-end')" class="mt-2" />
                     </div>
@@ -73,27 +73,46 @@
         <x-filter-wrapper
             title="Hasil Apriori - Kombinasi ke-{{ $title }}, Jumlah Transaksi : {{ $total_transaction }}">
             <x-slot name="button">
-                <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
-                    @csrf
-                    <div class="row">
-                        <input type="hidden" class="form-control" name="date-start" value="{{ $date_start }}"
-                            id="date-start">
-                        <input type="hidden" class="form-control" name="date-end" value="{{ $date_end }}"
-                            id="date-end">
-                        <input type="hidden" class="form-control" name="k-itemset" value="{{ session()->get('k-itemset') }}"
-                            id="k-itemset">
-                        <input type="hidden" class="form-control" name="support" placeholder="masukkan angka support.."
-                            onkeypress="validate_keypress(event)" id="support"
-                            value="{{ old('support', isset($support) ? $support : null) }}">
-                        <input type="hidden" class="form-control" name="confidence"
-                            placeholder="masukkan angka confidence.." onkeypress="validate_keypress(event)"
-                            id="confidence" value="{{ old('confidence', isset($confidence) ? $confidence : null) }}">
-                    </div>
-                    <div class="flex-row-reverse gap-1 col-md-12 d-flex">
-                        <button type="submit" class="btn btn-primary">Itemset {{ $title + 1 }} >></button>
-                    </div>
-                    </div>
-                </form>
+                <div class="flex-row-reverse gap-1 d-flex align-items-center">
+                    @if (session()->get('k-itemset') > 1)
+                        <form action="{{ route('admin.apriori-process.generate') }}" method="post">
+                            @csrf
+                            <input type="hidden" class="form-control" name="date-start" value="{{ $date_start }}"
+                                id="date-start">
+                            <input type="hidden" class="form-control" name="date-end" value="{{ $date_end }}"
+                                id="date-end">
+                            <input type="hidden" class="form-control" name="k-itemset"
+                                value="{{ session()->get('k-itemset') }}" id="k-itemset">
+                            <input type="hidden" class="form-control" name="current_apriori_id"
+                                value="{{ session()->get('current_apriori_id') }}" id="current_apriori_id">
+                            <input type="hidden" class="form-control" name="confidence" value="{{ $confidence }}"
+                                id="confidence">
+                            <button class="text-white btn btn-success" type="submit">Generate -></button>
+                        </form>
+                    @endif
+                    <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
+                        @csrf
+                        <div class="row">
+                            <input type="hidden" class="form-control" name="date-start"
+                                value="{{ $date_start }}" id="date-start">
+                            <input type="hidden" class="form-control" name="date-end" value="{{ $date_end }}"
+                                id="date-end">
+                            <input type="hidden" class="form-control" name="k-itemset"
+                                value="{{ session()->get('k-itemset') }}" id="k-itemset">
+                            <input type="hidden" class="form-control" name="support"
+                                placeholder="masukkan angka support.." onkeypress="validate_keypress(event)"
+                                id="support" value="{{ old('support', isset($support) ? $support : null) }}">
+                            <input type="hidden" class="form-control" name="confidence"
+                                placeholder="masukkan angka confidence.." onkeypress="validate_keypress(event)"
+                                id="confidence"
+                                value="{{ old('confidence', isset($confidence) ? $confidence : null) }}">
+                        </div>
+                        <div class="flex-row-reverse gap-1 col-md-12 d-flex">
+                            <button type="submit" class="btn btn-primary">Itemset {{ $title + 1 }} >></button>
+                        </div>
+                    </form>
+                </div>
+                </div>
 
 
                 <div class="card-body">
@@ -187,8 +206,8 @@
                     width: "6%"
                 }
             ],
-            createdRow: function( row, data, dataIndex){
-                if(data.remark == 1) {
+            createdRow: function(row, data, dataIndex) {
+                if (data.remark == 1) {
                     $(row).addClass('greenClass');
                 } else {
                     $(row).addClass('redClass');
@@ -226,7 +245,7 @@
                     data: "Remark",
                     name: 'is_passed',
                     searchable: false,
-                    orderable :false
+                    orderable: false
                 },
             ]
         })

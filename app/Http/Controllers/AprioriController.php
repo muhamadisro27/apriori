@@ -56,17 +56,16 @@ class AprioriController extends Controller
         if (request()->ajax()) {
             $dataset = $this->collect_data_itemset(session()->get('current_apriori_id'));
 
-
-            if(session()->get('k-itemset') <= 1) {
+            if (session()->get('k-itemset') <= 1) {
                 $data = null;
                 $data = $dataset->combinations;
             } else {
                 $data = [];
                 $i = 0;
-                foreach($dataset->combinations->where('result_itemset_id', session()->get('current_apriori_id'))->groupBy('item_set_combination') as $combination) {
+                foreach ($dataset->combinations->where('result_itemset_id', session()->get('current_apriori_id'))->groupBy('item_set_combination') as $combination) {
                     $item_name = [];
                     $item_code = [];
-                    foreach($combination as $item) {
+                    foreach ($combination as $item) {
                         array_push($item_name, $item->item_names);
                         array_push($item_code, $item->item_codes);
                     }
@@ -120,12 +119,192 @@ class AprioriController extends Controller
         }
     }
 
+    public function apriori_generate(Request $request)
+    {
+        $date_start = $request['date-start'];
+        $date_end = $request['date-end'];
+        $current_apriori_id = $request['current_apriori_id'];
+        $k = $request['k-itemset'];
+        $confidence = $request['confidence'];
+
+        $data = [
+            'date_start' => $date_start,
+            'date_end' => $date_end,
+            'current_apriori_id' => $current_apriori_id,
+            'k' => $k,
+            'confidence' => $confidence
+        ];
+
+        return view('admin.apriori.generate', $data);
+    }
+
+    public function apriori_generate_data(): JsonResponse
+    {
+        if (request()->ajax()) {
+
+            $date_start = request('date_start');
+            $date_end = request('date_end');
+            $current_apriori_id = (int) request('current_apriori_id');
+
+            $transactions = DetailResultItemset::select('item_codes')->where('result_itemset_id', ($current_apriori_id-1))->where('remark',1)->get()->toArray();
+
+            $frequentItemsets = DetailResultItemset::select('item_codes', 'item_set_combination')->where('remark', 1)->where('result_itemset_id', $current_apriori_id)->get()->groupBy('item_set_combination')->toArray();
+
+            $minConfidence = request('confidence');
+
+            $associationRules = $this->generateAssociationRules($transactions, $frequentItemsets, (int) $minConfidence, $date_start, $date_end);
+
+            $datatable =  DataTables::collection($associationRules);
+
+            $no = 1;
+            $datatable->addColumn('No', function ($dataset) use ($no) {
+                $no++;
+                return $no;
+            })
+                ->addColumn('Association Rule', function ($dataset) {
+                    return implode($dataset['X']) . '=>' . implode($dataset['Y']);
+                })
+                ->addColumn('Confidence', function ($dataset) {
+                    return $dataset['confidence'] . '%';
+                });
+
+            return $datatable->make(true);
+        }
+    }
+
+    public function generateAssociationRules($transactions, $frequentItemsets, $minConfidence, $date_start, $date_end)
+    {
+        $associationRules = [];
+
+        foreach ($frequentItemsets as $itemset) {
+
+            $item_codes = [];
+
+            foreach ($itemset as $key => $item) {
+                $item_codes[$key] = $item['item_codes'];
+            }
+
+            $itemsetSize = count($itemset);
+
+            if ($itemsetSize > 1) {
+                $subsets = $this->getSubsets($itemset);
+
+                foreach ($subsets as $subset) {
+
+                    $subsetItem = [];
+
+                    array_push($subsetItem, $subset[0]['item_codes']);
+
+                    $complement = array_diff($item_codes, $subsetItem);
+
+                    $confidence = $this->calculateConfidence($transactions, $subsetItem, $complement, $date_start, $date_end);
+
+                    if ($confidence >= $minConfidence) {
+                        $associationRules[] = [
+                            'X' => $subsetItem,
+                            'Y' => $complement,
+                            'confidence' => $confidence
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $associationRules;
+    }
+
+    function check_diff_multi($array1, $array2)
+    {
+        $result = array();
+        foreach ($array1 as $key => $val) {
+            if (isset($array2[$key])) {
+                if (is_array($val) && $array2[$key]) {
+                    $result[$key] = $this->check_diff_multi($val, $array2[$key]);
+                    unset($result[$key]);
+                }
+            } else {
+                $result[$key] = $val;
+            }
+        }
+
+        return $result;
+    }
+
+    function getSubsets($itemset)
+    {
+        $subsets = [[]];
+
+        foreach ($itemset as $item) {
+            $newSubsets = [];
+
+            foreach ($subsets as $subset) {
+                $newSubset = $subset;
+                $newSubset[] = $item;
+                $newSubsets[] = $newSubset;
+            }
+
+            $subsets = array_merge($subsets, $newSubsets);
+        }
+
+        // Hapus subset kosong (tanpa item)
+        array_shift($subsets);
+
+        return $subsets;
+    }
+
+    function calculateSupport($transactions, $itemset)
+    {
+        // Hitung jumlah transaksi yang mendukung itemset
+        $supportCount = 0;
+
+        foreach ($transactions as $transaction) {
+            if (array_diff($itemset, $transaction) == []) {
+                $supportCount++;
+            }
+        }
+
+        return $supportCount;
+    }
+
+    function calculateConfidence($transactions, $X, $Y, $date_start, $date_end)
+    {
+        // Hitung support untuk X
+        $supportX = DataTransaction::with('detail_transaction')->whereHas('detail_transaction', function ($q) use ($X) {
+            $q->whereIn('item_code', $X);
+        })->where('date', '>=', $date_start)->where('date', '<=', $date_end)->count();
+
+
+        $item_codes = array_merge($X, $Y);
+
+        // Hitung support untuk X union Y
+        $supportXY = DataTransaction::select('t1.item_code as item1', 't2.item_code as item2')
+            ->join('detail_transactions as t1', 't1.data_transaction_id', '=', 'data_transactions.id')
+            ->join('detail_transactions as t2', 't2.data_transaction_id', '=', 'data_transactions.id')
+            ->where('t1.item_code', '<', 't2.item_code')
+            ->where('t1.item_code', '!=', 't2.item_code')
+            ->where('data_transactions.date', '>=', $date_start)
+            ->where('data_transactions.date', '<=', $date_end)
+            ->where('t1.item_code', $item_codes[0])
+            ->where('t2.item_code', $item_codes[1])
+            ->groupBy('t1.item_code', 't2.item_code')
+            ->selectRaw('COUNT(t1.data_transaction_id) as frequency')
+            ->first();
+
+        // Hitung confidence menggunakan rumus
+        if ($supportX > 0) {
+            $confidence = $this->percentage_number((isset($supportXY['frequency']) ? $supportXY['frequency'] : 0 / $supportX) * 100);
+            return $confidence;
+        } else {
+            return 0; // untuk menghindari pembagian oleh 0 jika supportX = 0
+        }
+    }
+
     public function collect_data_itemset($current)
     {
-        if(session()->get('k-itemset') <= 1) {
+        if (session()->get('k-itemset') <= 1) {
             return ResultItemset::with('combinations')->where('id', $current)->latest()->first();
         } else {
-            return ResultItemset::with('combinations')->whereHas('combinations', function($q) {
+            return ResultItemset::with('combinations')->whereHas('combinations', function ($q) {
                 $q->where('item_set_combination', '<>', 0);
             })->where('id', $current)->latest()->first();
         }
@@ -238,13 +417,13 @@ class AprioriController extends Controller
             $item_code = [];
             $item_name = [];
             foreach ($combination as $item) {
-                if(!in_array($item['item_codes'], $item_code)) {
+                if (!in_array($item['item_codes'], $item_code)) {
                     array_push($item_code, $item['item_codes']);
                     array_push($item_name, $item['item_names']);
                 }
             }
 
-            if(count($item_code) < session()->get('k-itemset')) {
+            if (count($item_code) < session()->get('k-itemset')) {
                 unset($item_code);
                 unset($item_name);
             } else {
