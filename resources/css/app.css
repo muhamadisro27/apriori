@@ -1,3 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './simple-bar';
+@import './simplebar';
+@import './style.css';
+@import './example.css';
+@import '@coreui/icons/css/free';

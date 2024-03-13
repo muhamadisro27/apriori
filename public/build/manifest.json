@@ -1,11 +1,27 @@
 {
+  "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.eot": {
+    "file": "assets/CoreUI-Icons-Free-VFlOpMxx.eot",
+    "src": "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.eot"
+  },
+  "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.svg": {
+    "file": "assets/CoreUI-Icons-Free-115K0rWk.svg",
+    "src": "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.svg"
+  },
+  "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.ttf": {
+    "file": "assets/CoreUI-Icons-Free-c89Uz2gT.ttf",
+    "src": "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.ttf"
+  },
+  "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.woff": {
+    "file": "assets/CoreUI-Icons-Free-On69veH0.woff",
+    "src": "node_modules/@coreui/icons/fonts/CoreUI-Icons-Free.woff"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-SSPsa5sq.css",
+    "file": "assets/app-KuPfSCh_.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
   "resources/js/app.js": {
-    "file": "assets/app-vZDQhnJA.js",
+    "file": "assets/app-5n0Eep7V.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   }

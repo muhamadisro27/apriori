@@ -1,0 +1,30 @@
+[
+    {
+        "date" : "2024-01-02",
+        "transaction_code" : "Ca-01",
+        "item_code" : "Gs002",
+        "item_name" : "Sapu",
+        "quantity" : 1
+    },
+    {
+        "date" : "2024-01-03",
+        "transaction_code" : "Ca-02",
+        "item_code" : "Gs001",
+        "item_name" : "Pelan",
+        "quantity" : 1
+    },
+    {
+        "date" : "2024-01-04",
+        "transaction_code" : "Ca-03",
+        "item_code" : "Gs003",
+        "item_name" : "Sikat",
+        "quantity" : 1
+    },
+    {
+        "date" : "2024-01-03",
+        "transaction_code" : "Ca-03",
+        "item_code" : "Gs001",
+        "item_name" : "Pelan",
+        "quantity" : 3
+    }
+]
