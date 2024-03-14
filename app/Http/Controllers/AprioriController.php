@@ -292,7 +292,9 @@ class AprioriController extends Controller
 
         // Hitung confidence menggunakan rumus
         if ($supportX > 0) {
-            $confidence = $this->percentage_number((isset($supportXY['frequency']) ? $supportXY['frequency'] : 0 / $supportX) * 100);
+
+            $confidence = $this->percentage_number($supportXY['frequency'] / $supportX * 100);
+
             return $confidence;
         } else {
             return 0; // untuk menghindari pembagian oleh 0 jika supportX = 0
