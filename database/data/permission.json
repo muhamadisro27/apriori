@@ -1,0 +1,94 @@
+[
+    {
+        "name" : "view-dashboard",
+        "category" : "dashboard"
+    },
+    {
+        "name" : "view-apriori",
+        "category" : "apriori"
+    },
+    {
+        "name" : "create-apriori",
+        "category" : "apriori"
+    },
+    {
+        "name" : "edit-apriori",
+        "category" : "apriori"
+    },
+    {
+        "name" : "delete-apriori",
+        "category" : "apriori"
+    },
+    {
+        "name" : "view-data-transaction",
+        "category" : "data-transaction"
+    },
+    {
+        "name" : "create-data-transaction",
+        "category" : "data-transaction"
+    },
+    {
+        "name" : "edit-data-transaction",
+        "category" : "data-transaction"
+    },
+    {
+        "name" : "delete-data-transaction",
+        "category" : "data-transaction"
+    },
+    {
+        "name" : "view-item",
+        "category" : "item"
+    },
+    {
+        "name" : "create-item",
+        "category" : "item"
+    },
+    {
+        "name" : "edit-item",
+        "category" : "item"
+    },
+    {
+        "name" : "delete-item",
+        "category" : "item"
+    },
+    {
+        "name" : "view-user",
+        "category" : "user"
+    },
+    {
+        "name" : "create-user",
+        "category" : "user"
+    },
+    {
+        "name" : "edit-user",
+        "category" : "user"
+    },
+    {
+        "name" : "delete-user",
+        "category" : "user"
+    },
+    {
+        "name" : "change-password",
+        "category" : "user"
+    },
+    {
+        "name" : "view-role",
+        "category" : "role"
+    },
+    {
+        "name" : "create-role",
+        "category" : "role"
+    },
+    {
+        "name" : "edit-role",
+        "category" : "role"
+    },
+    {
+        "name" : "delete-role",
+        "category" : "role"
+    },
+    {
+        "name" : "view-permission",
+        "category" : "permission"
+    }
+]

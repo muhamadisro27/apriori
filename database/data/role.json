@@ -1,0 +1,49 @@
+[
+    {
+        "name": "super-admin",
+        "permissions": [
+            "view-dashboard",
+            "view-apriori",
+            "create-apriori",
+            "edit-apriori",
+            "delete-apriori",
+            "view-data-transaction",
+            "create-data-transaction",
+            "edit-data-transaction",
+            "delete-data-transaction",
+            "view-item",
+            "create-item",
+            "edit-item",
+            "delete-item",
+            "view-user",
+            "create-user",
+            "edit-user",
+            "delete-user",
+            "change-password",
+            "view-role",
+            "create-role",
+            "edit-role",
+            "delete-role",
+            "view-permission"
+        ]
+    },
+    {
+        "name": "admin",
+        "permissions": [
+            "view-dashboard",
+            "view-apriori",
+            "create-apriori",
+            "edit-apriori",
+            "delete-apriori",
+            "view-data-transaction",
+            "create-data-transaction",
+            "edit-data-transaction",
+            "delete-data-transaction",
+            "view-item",
+            "create-item",
+            "edit-item",
+            "delete-item",
+            "change-password"
+        ]
+    }
+]

@@ -49,46 +49,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     });
 
     Route::prefix('user')->controller(App\Http\Controllers\UserController::class)->name('user.')->group(function () {
-        Route::get('/', 'index');
-        Route::get('get-data', 'get_data')->name('get-data');
+        Route::get('/', 'index')->can('view-user');
+        Route::get('get-data', 'get_data')->name('get-data')->can('view-user');
         Route::get('create', 'form')->name('create');
         Route::get('edit/{user}', 'form')->name('edit');
         Route::post('save/{user?}', 'save')->name('save');
         Route::delete('destroy/{user}', 'destroy')->name('destroy');
     });
-});
-
-
-Route::get('test', function () {
-    $items = ['A', 'B', 'C', 'D'];
-    $k = 2;
-
-    $combinations = [];
-
-    // Helper function untuk menghasilkan kombinasi rekursif
-    function generateCombinations($start, $currentCombination, $k, $items, &$combinations)
-    {
-        $n = count($items);
-
-        // Jika panjang kombinasi mencapai target ($k), tambahkan ke hasil
-        if (count($currentCombination) === $k) {
-            $combinations[] = $currentCombination;
-            return;
-        }
-
-        // Iterasi melalui sisa itemset
-        for ($i = $start; $i < $n; $i++) {
-            $newCombination = $currentCombination;
-            $newCombination[] = $items[$i];
-
-            // Panggil rekursif dengan itemset yang lebih panjang
-            generateCombinations($i + 1, $newCombination, $k, $items, $combinations);
-        }
-    }
-
-    generateCombinations(0, [], $k, $items, $combinations);
-
-    return $combinations;
 });
 
 require __DIR__ . '/auth.php';

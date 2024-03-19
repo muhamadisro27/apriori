@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Super Admin",
+        "email": "superadmin@mail.com",
+        "password": "superadmin2024",
+        "roles": "super-admin"
+    },
+    {
+        "name": "Admin",
+        "email": "admin@mail.com",
+        "password": "admin2024",
+        "roles": "admin"
+    }
+]
