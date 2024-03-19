@@ -36,4 +36,20 @@
     input:read-only {
         background-color: #e1e1e1;
     }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper input {
+        width: 100%;
+    }
+
+    .hide-password,
+    .show-password {
+        position: absolute;
+        right: 2%;
+        cursor: pointer;
+        top: 0;
+    }
 </style>
