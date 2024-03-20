@@ -32,14 +32,14 @@ class DataTransactionImport implements ToCollection, WithHeadingRow
                 //code...
                 DB::beginTransaction();
 
-                DataTransaction::firstOrCreate([
+                $data = DataTransaction::firstOrCreate([
                     'transaction_code' => $item['kode_transaksi'],
                 ], [
                     'date' => $date,
                 ]);
 
                 DetailTransaction::updateOrCreate([
-                    'transaction_code' => $item['kode_transaksi'],
+                    'data_transaction_id' => $data['id'],
                     'item_code' => $item['kode_barang'],
                     'item_name' => Str::lower($item['nama_barang']),
                     'quantity' => $item['quantity']
@@ -56,6 +56,7 @@ class DataTransactionImport implements ToCollection, WithHeadingRow
                     'message' => $th->getMessage()
                 ];
             }
+
         }
 
         return $response;
