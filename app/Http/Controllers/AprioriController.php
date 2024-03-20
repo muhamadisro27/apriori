@@ -27,7 +27,6 @@ class AprioriController extends Controller
 
     public function apriori(AprioriRequest $request)
     {
-
         $minimal_support = $request->support;
         $minimal_confidence = $request->confidence;
         $date_start = $request['date-start'];
@@ -39,6 +38,7 @@ class AprioriController extends Controller
         $k =  session()->get('k-itemset');
         $data = [];
         $dataset = $this->get_dataset($date_start, $date_end, $minimal_support, $minimal_confidence, $k);
+        $total_combinations = DetailResultItemset::where('result_itemset_id', session()->get('current_apriori_id'))->where('remark', 1)->count();
 
         $data['title'] = $k;
         $data['date_start'] = $date_start;
@@ -47,6 +47,7 @@ class AprioriController extends Controller
         $data['confidence'] = $minimal_confidence;
         $data['total_transaction'] = $total_transaction;
         $data['dataset'] = $dataset;
+        $data['total_combinations'] = $total_combinations;
 
         return view('admin.apriori.itemset', $data);
     }

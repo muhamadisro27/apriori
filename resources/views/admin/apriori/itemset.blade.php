@@ -90,6 +90,7 @@
                             <button class="text-white btn btn-success" type="submit">Generate -></button>
                         </form>
                     @endif
+                    @if ($total_combinations > 4)
                     <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
                         @csrf
                         <div class="row">
@@ -111,6 +112,7 @@
                             <button type="submit" class="btn btn-primary">Itemset {{ $title + 1 }} >></button>
                         </div>
                     </form>
+                    @endif
                 </div>
                 </div>
 
