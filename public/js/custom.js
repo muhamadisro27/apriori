@@ -84,7 +84,7 @@ function datePicker(start_date = "", end_date = "", add_params = true) {
     end_date
         .datepicker({
             format: "yyyy-mm-dd",
-            startDate: datepicker_startDate,
+            startDate: new Date(2022, 1, 0),
             endDate: datepicker_endDate,
             uiLibrary: 'bootstrap4'
         })
