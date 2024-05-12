@@ -147,7 +147,7 @@ class AprioriController extends Controller
             $date_end = request('date_end');
             $current_apriori_id = (int) request('current_apriori_id');
 
-            $transactions = DetailResultItemset::select('item_codes')->where('result_itemset_id', ($current_apriori_id-1))->where('remark',1)->get()->toArray();
+            $transactions = DetailResultItemset::select('item_codes')->where('result_itemset_id', ($current_apriori_id - 1))->where('remark', 1)->get()->toArray();
 
             $frequentItemsets = DetailResultItemset::select('item_codes', 'item_set_combination')->where('remark', 1)->where('result_itemset_id', $current_apriori_id)->get()->groupBy('item_set_combination')->toArray();
 
@@ -155,7 +155,14 @@ class AprioriController extends Controller
 
             $associationRules = $this->generateAssociationRules($transactions, $frequentItemsets, (int) $minConfidence, $date_start, $date_end);
 
-            $datatable =  DataTables::collection($associationRules);
+            $newRules = [];
+            foreach($associationRules as $associationRule) {
+
+                if(!in_array($associationRule, $newRules)) {
+                    $newRules[] = $associationRule;
+                }
+            }
+            $datatable =  DataTables::collection($newRules);
 
             $no = 1;
             $datatable->addColumn('No', function ($dataset) use ($no) {
@@ -172,6 +179,83 @@ class AprioriController extends Controller
             return $datatable->make(true);
         }
     }
+
+    // public function generateAssociationRules2($transactions, $frequentItemsets)
+    // {
+    //     $rules = [];
+    //     $itemset = [];
+    //     $k = 1;
+
+    //     while (true) {
+    //         $itemset = $this->generateItemset($frequentItemsets, $k);
+    //         dd($itemset);
+    //         if (empty($itemset)) break;
+
+            // Langkah 2: Menghitung dukungan itemset kandidat
+            // foreach ($itemset as $item) {
+            //     $support = hitungDukunganItemset($transactions, $item);
+            //     if ($support >= $minSupport) {
+            //         $rules[] = ['itemset' => $item, 'support' => $support];
+            //     }
+            // }
+    //         $k++;
+    //     }
+
+        // $resultRules = [];
+        // foreach ($rules as $rule) {
+        //     $itemset = $rule['itemset'];
+        //     $support = $rule['support'];
+
+        //     if (count($itemset) > 1) {
+        //         $subsets = getSubsets($itemset);
+        //         foreach ($subsets as $subset) {
+        //             $confidence = $support / hitungDukunganItemset($transactions, $subset);
+        //             if ($confidence >= $minConfidence) {
+        //                 $resultRules[] = [
+        //                     'lhs' => $subset,
+        //                     'rhs' => array_diff($itemset, $subset),
+        //                     'support' => $support,
+        //                     'confidence' => $confidence
+        //                 ];
+        //             }
+        //         }
+        //     }
+        // }
+
+    //     return $resultRules;
+    // }
+
+    // public function generateItemset($transactions, $k)
+    // {
+    //     $itemset = [];
+    //     $numTransactions = count($transactions);
+
+    //     // Generate itemset kandidat
+    //     foreach ($transactions as $transaction) {
+    //         foreach ($transaction as $item) {
+    //             if (!in_array([$item], $itemset)) {
+    //                 $itemset[] = [$item];
+    //             }
+    //         }
+    //     }
+    //     dd($itemset);
+
+    //     // Menggabungkan itemset untuk membentuk itemset kandidat berikutnya
+    //     for ($i = 0; $i < count($itemset); $i++) {
+    //         for ($j = $i + 1; $j < count($itemset); $j++) {
+    //             $combined = array_merge($itemset[$i], $itemset[$j]);
+    //             sort($combined);
+    //             if (count($combined) == $k && !in_array($combined, $itemset)) {
+    //                 $support = hitungDukunganItemset($transactions, $combined);
+    //                 if ($support >= $numTransactions * 0.5) {
+    //                     $itemset[] = $combined;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     return $itemset;
+    // }
 
     public function generateAssociationRules($transactions, $frequentItemsets, $minConfidence, $date_start, $date_end)
     {
