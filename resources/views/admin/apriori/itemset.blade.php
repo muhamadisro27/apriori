@@ -90,7 +90,7 @@
                             <button class="text-white btn btn-success" type="submit">Generate -></button>
                         </form>
                     @endif
-                    @if ($title < 2)
+                    @if ($total_combinations > 4 && $title < 2)
                         <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
                             @csrf
                             <div class="row">
@@ -113,6 +113,8 @@
                                     >></button>
                             </div>
                         </form>
+                    @else
+                        Data tidak memungkinkan di iterasi lagi
                     @endif
                 </div>
                 </div>
