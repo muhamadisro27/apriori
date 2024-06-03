@@ -79,8 +79,14 @@ class AprioriController extends Controller
                         'minimal_support' => $combination[0]->minimal_support,
                         'remark' => $combination[0]->remark,
                     ];
-
                     $i++;
+                }
+            }
+
+            $newDatas = [];
+            foreach ($data as $d) {
+                if (!in_array($d, $newDatas)) {
+                    $newDatas[] = $d;
                 }
             }
 
@@ -156,9 +162,9 @@ class AprioriController extends Controller
             $associationRules = $this->generateAssociationRules($transactions, $frequentItemsets, (int) $minConfidence, $date_start, $date_end);
 
             $newRules = [];
-            foreach($associationRules as $associationRule) {
+            foreach ($associationRules as $associationRule) {
 
-                if(!in_array($associationRule, $newRules)) {
+                if (!in_array($associationRule, $newRules)) {
                     $newRules[] = $associationRule;
                 }
             }
@@ -191,36 +197,36 @@ class AprioriController extends Controller
     //         dd($itemset);
     //         if (empty($itemset)) break;
 
-            // Langkah 2: Menghitung dukungan itemset kandidat
-            // foreach ($itemset as $item) {
-            //     $support = hitungDukunganItemset($transactions, $item);
-            //     if ($support >= $minSupport) {
-            //         $rules[] = ['itemset' => $item, 'support' => $support];
-            //     }
-            // }
+    // Langkah 2: Menghitung dukungan itemset kandidat
+    // foreach ($itemset as $item) {
+    //     $support = hitungDukunganItemset($transactions, $item);
+    //     if ($support >= $minSupport) {
+    //         $rules[] = ['itemset' => $item, 'support' => $support];
+    //     }
+    // }
     //         $k++;
     //     }
 
-        // $resultRules = [];
-        // foreach ($rules as $rule) {
-        //     $itemset = $rule['itemset'];
-        //     $support = $rule['support'];
+    // $resultRules = [];
+    // foreach ($rules as $rule) {
+    //     $itemset = $rule['itemset'];
+    //     $support = $rule['support'];
 
-        //     if (count($itemset) > 1) {
-        //         $subsets = getSubsets($itemset);
-        //         foreach ($subsets as $subset) {
-        //             $confidence = $support / hitungDukunganItemset($transactions, $subset);
-        //             if ($confidence >= $minConfidence) {
-        //                 $resultRules[] = [
-        //                     'lhs' => $subset,
-        //                     'rhs' => array_diff($itemset, $subset),
-        //                     'support' => $support,
-        //                     'confidence' => $confidence
-        //                 ];
-        //             }
-        //         }
-        //     }
-        // }
+    //     if (count($itemset) > 1) {
+    //         $subsets = getSubsets($itemset);
+    //         foreach ($subsets as $subset) {
+    //             $confidence = $support / hitungDukunganItemset($transactions, $subset);
+    //             if ($confidence >= $minConfidence) {
+    //                 $resultRules[] = [
+    //                     'lhs' => $subset,
+    //                     'rhs' => array_diff($itemset, $subset),
+    //                     'support' => $support,
+    //                     'confidence' => $confidence
+    //                 ];
+    //             }
+    //         }
+    //     }
+    // }
 
     //     return $resultRules;
     // }
@@ -392,7 +398,7 @@ class AprioriController extends Controller
             return ResultItemset::with('combinations')->where('id', $current)->latest()->first();
         } else {
             return ResultItemset::with('combinations')->whereHas('combinations', function ($q) {
-                $q->where('item_set_combination', '<>', 0);
+                $q->where('item_set_combination', '<>', 0)->where('remark', 1);
             })->where('id', $current)->latest()->first();
         }
     }
@@ -490,7 +496,6 @@ class AprioriController extends Controller
                 array_push($passed_combines, $new);
             }
         }
-
         generateCombinations(0, [], $k, $passed_combines, $combinations);
 
         $i = 0;
@@ -534,7 +539,7 @@ class AprioriController extends Controller
                     DB::beginTransaction();
 
                     for ($k = 0; $k < count(explode(',', $result_combines[$i]['item_code'])); $k++) {
-                        DetailResultItemset::create([
+                        DetailResultItemset::firstOrCreate([
                             'result_itemset_id' => $result_2->id,
                             'item_set_combination' => $i,
                             'item_codes' => explode(',', $result_combines[$i]['item_code'])[$k],
@@ -554,8 +559,6 @@ class AprioriController extends Controller
 
                 $i++;
             }
-
-            // dd($result_combines);
         }
 
         if (session()->has('current_apriori_id')) {

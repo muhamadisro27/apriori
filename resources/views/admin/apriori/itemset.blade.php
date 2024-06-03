@@ -90,28 +90,29 @@
                             <button class="text-white btn btn-success" type="submit">Generate -></button>
                         </form>
                     @endif
-                    @if ($total_combinations > 4)
-                    <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
-                        @csrf
-                        <div class="row">
-                            <input type="hidden" class="form-control" name="date-start"
-                                value="{{ $date_start }}" id="date-start">
-                            <input type="hidden" class="form-control" name="date-end" value="{{ $date_end }}"
-                                id="date-end">
-                            <input type="hidden" class="form-control" name="k-itemset"
-                                value="{{ session()->get('k-itemset') }}" id="k-itemset">
-                            <input type="hidden" class="form-control" name="support"
-                                placeholder="masukkan angka support.." onkeypress="validate_keypress(event)"
-                                id="support" value="{{ old('support', isset($support) ? $support : null) }}">
-                            <input type="hidden" class="form-control" name="confidence"
-                                placeholder="masukkan angka confidence.." onkeypress="validate_keypress(event)"
-                                id="confidence"
-                                value="{{ old('confidence', isset($confidence) ? $confidence : null) }}">
-                        </div>
-                        <div class="flex-row-reverse gap-1 col-md-12 d-flex">
-                            <button type="submit" class="btn btn-primary">Itemset {{ $title + 1 }} >></button>
-                        </div>
-                    </form>
+                    @if ($title < 2)
+                        <form id="form" method="post" action="{{ route('admin.apriori-process.') }}">
+                            @csrf
+                            <div class="row">
+                                <input type="hidden" class="form-control" name="date-start"
+                                    value="{{ $date_start }}" id="date-start">
+                                <input type="hidden" class="form-control" name="date-end"
+                                    value="{{ $date_end }}" id="date-end">
+                                <input type="hidden" class="form-control" name="k-itemset"
+                                    value="{{ session()->get('k-itemset') }}" id="k-itemset">
+                                <input type="hidden" class="form-control" name="support"
+                                    placeholder="masukkan angka support.." onkeypress="validate_keypress(event)"
+                                    id="support" value="{{ old('support', isset($support) ? $support : null) }}">
+                                <input type="hidden" class="form-control" name="confidence"
+                                    placeholder="masukkan angka confidence.." onkeypress="validate_keypress(event)"
+                                    id="confidence"
+                                    value="{{ old('confidence', isset($confidence) ? $confidence : null) }}">
+                            </div>
+                            <div class="flex-row-reverse gap-1 col-md-12 d-flex">
+                                <button type="submit" class="btn btn-primary">Itemset {{ $title + 1 }}
+                                    >></button>
+                            </div>
+                        </form>
                     @endif
                 </div>
                 </div>
